@@ -6,16 +6,27 @@ library(reshape2)
 
 ui <- fluidPage(
 
-  fileInput("file", "Įkelk CSV"),
+    titlePanel("CSV Data Explorer"),
 
-  selectInput("x", "X ašis", choices = NULL),
-  selectInput("y", "Y ašis", choices = NULL),
-  selectInput("type", "Grafiko tipas",
-              choices= c("scatter","line","bar")),
+    tabsetPanel(
 
-  tableOutput("table"),
-  plotOutput("plot"),
-  plotOutput("corr")
+      tabPanel("Data",
+                fileInput =("file", "Upload CSV"),
+                tableOutput("table")
+      ),
+
+      tabPanel("Plot",
+                selectInput("x", "X ašis", choices = NULL),
+                selectInput("y", "Y ašis", choices = NULL),
+                selectInput("type", "Grafiko tipas",
+                            choices= c("scatter","line","bar")),
+                plotOutput("plot")
+    ),  
+
+    tabPanel("Correlation",
+            plotOutput("corr")
+    )
+  )
 )
 
 server <- function(input, output, session) {
