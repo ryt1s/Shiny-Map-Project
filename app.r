@@ -1,14 +1,16 @@
 install.packages(c("shiny", "dplyr", "ggplot2", "plotly"),
                  repos = "https://cloud.r-project.org")
 library(shiny)
+library(ggplot2)
 
 ui <- fluidPage(
-  titlePanel("CSV analizės app"),
 
-  fileInput("file", "Įkelk CSV failą", accept = ".csv"),
+  fileInput("file", "Įkelk CSV"),
+
+  selectInput("x", "X ašis", choices = NULL),
+  selectInput("y", "Y ašis", choices = NULL),
 
   tableOutput("table"),
-
   plotOutput("plot")
 )
 
@@ -20,27 +22,32 @@ server <- function(input, output, session) {
   })
 
   output$table <- renderTable({
-    req(data())
-    head(data(),10)
+    head(data(), 10)
   })
 
- output$plot <- renderPlot({
-  req(data())
+  observe({
+    req(data())
+    cols <- names(data())
 
-  df <- data()
+    updateSelectInput(session, "x", choices = cols)
+    updateSelectInput(session, "y", choices = cols)
+  })
 
-  num_cols <- names(df)[sapply(df, is.numeric)]
+  output$plot <- renderPlot({
+    req(data(), input$x, input$y)
 
-  req(length(num_cols) >= 2)
+    df <- data()
 
-  x <- num_cols[1]
-  y <- num_cols[2]
-
-  plot(df[[x]], df[[y]],
-       xlab = x,
-       ylab = y,
-       main = "CSV grafikas")
-})
+    ggplot(df, aes(x = .data[[input$x]], y = .data[[input$y]])) +
+  geom_point(color = "steelblue", size = 3, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  theme_minimal() +
+  labs(
+    title = "CSV analizės grafikas",
+    x = input$x,
+    y = input$y
+  )
+  })
 }
 
 shinyApp(ui, server)
