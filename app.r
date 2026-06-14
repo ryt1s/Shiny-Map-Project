@@ -2,6 +2,7 @@ install.packages(c("shiny", "dplyr", "ggplot2", "plotly"),
                  repos = "https://cloud.r-project.org")
 library(shiny)
 library(ggplot2)
+library(reshape2)
 
 ui <- fluidPage(
 
@@ -73,23 +74,21 @@ server <- function(input, output, session) {
     req(ncol(df) > 1)
 
     cor_mat <- cor(df, use = "complete.obs")
+    df_melt <- melt(cor_mat)
 
-    col_fun <- colorRampPalette(c("blue", "white", "red"))
-
-    heatmap(cor_mat,
-            col = col_fun(50),
-            scale = "none")
-
-    n <- ncol(cor_mat)
-    for (i in 1:n) {
-      for (j in 1:n) {
-        text(i, j, round(cor_mat[i, j], 2))
-      }
-    }
+    ggplot(df_melt, aes(Var1, Var2, fill=value)) +
+      geom_tile() +
+      geom_text(aes(label = round(value, 2)), size = 4) +
+      scale_fill_gradient2(
+        low = "blue",
+        mid = "white",
+        high = "red",
+        midpoint = 0
+      ) +
+      theme_minimal() + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+      labs(x ="", y = "", fill = "Correlation")
   })
 }
 
 shinyApp(ui, server)
-
-
-
