@@ -68,15 +68,24 @@ server <- function(input, output, session) {
     req(data())
 
     df <- data()
-
     # only numeric
     df <- df[sapply(df, is.numeric)]
-
     req(ncol(df) > 1)
 
     cor_mat <- cor(df, use = "complete.obs")
 
-    heatmap(cor_mat)
+    col_fun <- colorRampPalette(c("blue", "white", "red"))
+
+    heatmap(cor_mat,
+            col = col_fun(50),
+            scale = "none")
+
+    n <- ncol(cor_mat)
+    for (i in 1:n) {
+      for (j in 1:n) {
+        text(i, j, round(cor_mat[i, j], 2))
+      }
+    }
   })
 }
 
