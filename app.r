@@ -11,7 +11,7 @@ ui <- fluidPage(
     tabsetPanel(
 
       tabPanel("Data",
-                fileInput =("file", "Upload CSV"),
+                fileInput("file", "Upload CSV"),
                 tableOutput("table")
       ),
 
