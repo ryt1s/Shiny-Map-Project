@@ -13,7 +13,8 @@ ui <- fluidPage(
               choices= c("scatter","line","bar")),
 
   tableOutput("table"),
-  plotOutput("plot")
+  plotOutput("plot"),
+  plotOutput("corr")
 )
 
 server <- function(input, output, session) {
@@ -61,6 +62,21 @@ server <- function(input, output, session) {
   #   x = input$x,
   #   y = input$y
   # )
+  })
+
+  output$corr <- renderPlot({
+    req(data())
+
+    df <- data()
+
+    # only numeric
+    df <- df[sapply(df, is.numeric)]
+
+    req(ncol(df) > 1)
+
+    cor_mat <- cor(df, use = "complete.obs")
+
+    heatmap(cor_mat)
   })
 }
 
